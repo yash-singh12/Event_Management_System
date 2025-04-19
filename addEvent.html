@@ -21,10 +21,16 @@
     <main class="add-event-main">
         <section class="add-event-section">
             <h2>Add New Event</h2>
-            <form id="eventForm" class="event-form">
+            <form id="eventForm" class="event-form" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="title">Event Title</label>
                     <input type="text" id="title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="poster">Event Poster</label>
+                    <input type="file" id="poster" name="poster" accept="image/*" required>
+                    <small>Upload an image for the event poster (JPG, PNG, etc.)</small>
                 </div>
 
                 <div class="form-group">

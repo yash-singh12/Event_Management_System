@@ -36,36 +36,57 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
     const venue = document.getElementById('venue').value;
     const organizer = document.getElementById('organizer').value;
     const description = document.getElementById('description').value;
-
-    // Log form data for debugging
-    console.log('Form data:', { title, date, time, venue, organizer, description });
+    const posterFile = document.getElementById('poster').files[0];
 
     // Validate required fields
-    if (!title || !date || !time || !venue || !organizer || !description) {
-        showToast('Please fill in all fields', true);
+    if (!title || !date || !time || !venue || !organizer || !description || !posterFile) {
+        showToast('Please fill in all fields and upload a poster', true);
         return;
     }
 
-    const formData = {
-        title,
-        date,
-        time,
-        venue,
-        organizer,
-        description
-    };
-
     try {
-        console.log('Attempting to insert event into Supabase...');
-        
+        // Upload image to Supabase Storage
+        const fileExt = posterFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `event-posters/${fileName}`;
+
+        console.log('Uploading image to storage...');
+        const { data: uploadData, error: uploadError } = await supabaseClient
+            .storage
+            .from('event-posters')
+            .upload(filePath, posterFile);
+
+        if (uploadError) {
+            console.error('Storage upload error:', uploadError);
+            throw uploadError;
+        }
+
+        console.log('Getting public URL...');
+        const { data: { publicUrl } } = supabaseClient
+            .storage
+            .from('event-posters')
+            .getPublicUrl(filePath);
+
+        const formData = {
+            title,
+            date,
+            time,
+            venue,
+            organizer,
+            description,
+            poster_url: publicUrl
+        };
+
+        console.log('Inserting event data:', formData);
         const { data, error } = await supabaseClient
             .from('events')
             .insert([formData])
             .select();
 
         if (error) {
-            console.error('Supabase error:', error);
-            throw error;
+            console.error('Database insert error:', error);
+            showToast(`Error adding event: ${error.message}`, true);
+            return;
         }
 
         console.log('Event added successfully:', data);
@@ -78,7 +99,7 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
         }, 2000);
 
     } catch (error) {
-        console.error('Error adding event:', error);
-        showToast(`Error adding event: ${error.message}`, true);
+        console.error('General error:', error);
+        showToast(`Error: ${error.message}`, true);
     }
 }); 

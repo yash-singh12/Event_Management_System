@@ -11,11 +11,16 @@ function createEventCard(event) {
     const card = document.createElement('div');
     card.className = 'event-card';
     card.innerHTML = `
-        <h3>${event.title}</h3>
-        <p class="date-time">${event.date} at ${event.time}</p>
-        <p><strong>Venue:</strong> ${event.venue}</p>
-        <p><strong>Organizer:</strong> ${event.organizer}</p>
-        <p>${event.description}</p>
+        <div class="event-poster">
+            <img src="${event.poster_url}" alt="${event.title} poster" onerror="this.src='placeholder-image.jpg'">
+        </div>
+        <div class="event-details">
+            <h3>${event.title}</h3>
+            <p class="date-time">${event.date} at ${event.time}</p>
+            <p><strong>Venue:</strong> ${event.venue}</p>
+            <p><strong>Organizer:</strong> ${event.organizer}</p>
+            <p>${event.description}</p>
+        </div>
     `;
     return card;
 }
