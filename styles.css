@@ -240,4 +240,21 @@ footer {
     .events-container {
         grid-template-columns: 1fr;
     }
+}
+
+.event-link {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.event-link:hover {
+    background-color: #0056b3;
+    text-decoration: none;
+    color: white;
 } 

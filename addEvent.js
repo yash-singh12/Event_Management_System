@@ -42,10 +42,11 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
     const organizer = document.getElementById('organizer').value;
     const description = document.getElementById('description').value;
     const posterFile = document.getElementById('poster').files[0];
+    const eventLink = document.getElementById('eventLink').value;
 
     // Validate required fields
     if (!title || !date || !time || !venue || !organizer || !description || !posterFile) {
-        showToast('Please fill in all fields and upload a poster', true);
+        showToast('Please fill in all required fields and upload a poster', true);
         return;
     }
 
@@ -79,7 +80,8 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
             venue,
             organizer,
             description,
-            poster_url: publicUrl
+            poster_url: publicUrl,
+            event_link: eventLink || null
         };
 
         console.log('Inserting event data:', formData);
@@ -92,6 +94,30 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
             console.error('Database insert error:', error);
             showToast(`Error adding event: ${error.message}`, true);
             return;
+        }
+
+        // Send notification for the new event
+        try {
+            const notificationResponse = await fetch('/api/send-event-notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    event: {
+                        title,
+                        date,
+                        id: data[0].id,
+                        poster_url: publicUrl
+                    }
+                })
+            });
+
+            if (!notificationResponse.ok) {
+                console.error('Failed to send notification');
+            }
+        } catch (notificationError) {
+            console.error('Error sending notification:', notificationError);
         }
 
         console.log('Event added successfully:', data);
